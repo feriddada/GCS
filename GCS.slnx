@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GCS.Core/GCS.Core.csproj" />
+  <Project Path="GCS/GCS.csproj" />
+</Solution>

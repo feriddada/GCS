@@ -1,0 +1,359 @@
+<UserControl x:Class="GCS.Views.TelemetryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:GCS"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <!-- Converters -->
+        <local:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+        <local:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <local:BoolToStatusConverter x:Key="BoolToStatusConverter"/>
+        
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        
+        <!-- Label Style -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#888888"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+        
+        <!-- Value Style -->
+        <Style x:Key="ValueStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- Unit Style -->
+        <Style x:Key="UnitStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Margin" Value="5,0,0,2"/>
+        </Style>
+        
+        <!-- Section Header -->
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#4EC9B0"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="15">
+            
+            <!-- Connection Status -->
+            <TextBlock Text="VEHICLE STATUS" Style="{StaticResource SectionHeaderStyle}"/>
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="CONNECTED" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Style="{StaticResource ValueStyle}">
+                            <TextBlock.Text>
+                                <Binding Path="IsConnected">
+                                    <Binding.Converter>
+                                        <local:BoolToYesNoConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBlock.Text>
+                            <TextBlock.Foreground>
+                                <Binding Path="IsConnected">
+                                    <Binding.Converter>
+                                        <local:BoolToColorConverter 
+                                            TrueColor="#4EC9B0" 
+                                            FalseColor="#F48771"/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="SYSTEM ID" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="{Binding SystemId}" Style="{StaticResource ValueStyle}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="LAST HEARTBEAT" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="{Binding LastHeartbeat}" 
+                                  Style="{StaticResource ValueStyle}"
+                                  FontSize="16"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Flight Data -->
+            <TextBlock Text="FLIGHT DATA" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Speed & Altitude -->
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="GROUNDSPEED" Style="{StaticResource LabelStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Groundspeed, StringFormat=F1}" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="m/s" Style="{StaticResource UnitStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="AIRSPEED" Style="{StaticResource LabelStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Airspeed, StringFormat=F1}" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="m/s" Style="{StaticResource UnitStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                
+                <!-- Altitude & Climb -->
+                <StackPanel Grid.Column="1">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="ALTITUDE (MSL)" Style="{StaticResource LabelStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Altitude, StringFormat=F1}" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="m" Style="{StaticResource UnitStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="CLIMB RATE" Style="{StaticResource LabelStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ClimbRate, StringFormat=F2}" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="m/s" Style="{StaticResource UnitStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Attitude -->
+            <TextBlock Text="ATTITUDE" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="ROLL" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Roll, StringFormat=F1}" Style="{StaticResource ValueStyle}"/>
+                            <TextBlock Text="°" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="PITCH" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Pitch, StringFormat=F1}" Style="{StaticResource ValueStyle}"/>
+                            <TextBlock Text="°" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="HEADING" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Heading, StringFormat=F0}" Style="{StaticResource ValueStyle}"/>
+                            <TextBlock Text="°" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Position -->
+            <TextBlock Text="POSITION" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="LATITUDE" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="{Binding Latitude, StringFormat=F6}" 
+                                  Style="{StaticResource ValueStyle}"
+                                  FontSize="18"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="LONGITUDE" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="{Binding Longitude, StringFormat=F6}" 
+                                  Style="{StaticResource ValueStyle}"
+                                  FontSize="18"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Battery & System -->
+            <TextBlock Text="BATTERY &amp; SYSTEM" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="VOLTAGE" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Voltage, StringFormat=F2}" Style="{StaticResource ValueStyle}"/>
+                            <TextBlock Text="V" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="CURRENT" Style="{StaticResource LabelStyle}" Margin="0,10,0,2"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Current, StringFormat=F1}" Style="{StaticResource ValueStyle}" FontSize="18"/>
+                            <TextBlock Text="A" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="BATTERY REMAINING" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding BatteryRemaining}" Style="{StaticResource ValueStyle}"/>
+                            <TextBlock Text="%" Style="{StaticResource UnitStyle}"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="FLIGHT MODE" Style="{StaticResource LabelStyle}" Margin="0,10,0,2"/>
+                        <TextBlock Text="{Binding FlightMode}" 
+                                  Style="{StaticResource ValueStyle}" 
+                                  FontSize="18"
+                                  Foreground="#4EC9B0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Health Status -->
+            <TextBlock Text="HEALTH STATUS" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="LINK" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="16" Height="16" Margin="0,0,10,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#F48771"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding LinkAlive}" Value="True">
+                                                <Setter Property="Fill" Value="#4EC9B0"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Style="{StaticResource ValueStyle}" FontSize="16">
+                                <TextBlock.Text>
+                                    <Binding Path="LinkAlive">
+                                        <Binding.Converter>
+                                            <local:BoolToStatusConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="ATTITUDE" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="16" Height="16" Margin="0,0,10,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#F48771"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AttitudeFresh}" Value="True">
+                                                <Setter Property="Fill" Value="#4EC9B0"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Style="{StaticResource ValueStyle}" FontSize="16">
+                                <TextBlock.Text>
+                                    <Binding Path="AttitudeFresh">
+                                        <Binding.Converter>
+                                            <local:BoolToStatusConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="POSITION" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="16" Height="16" Margin="0,0,10,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#F48771"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding PositionFresh}" Value="True">
+                                                <Setter Property="Fill" Value="#4EC9B0"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Style="{StaticResource ValueStyle}" FontSize="16">
+                                <TextBlock.Text>
+                                    <Binding Path="PositionFresh">
+                                        <Binding.Converter>
+                                            <local:BoolToStatusConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

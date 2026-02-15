@@ -1,0 +1,217 @@
+<UserControl x:Class="GCS.Views.FlightPanelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:views="clr-namespace:GCS.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="500">
+    
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="PanelBackground" Color="#151922"/>
+        <SolidColorBrush x:Key="CardBackground" Color="#1C2128"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2D333D"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#E6EDF3"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#8B949E"/>
+        <SolidColorBrush x:Key="AccentCyan" Color="#39D0D8"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#3FB950"/>
+        <SolidColorBrush x:Key="AccentOrange" Color="#FF9500"/>
+        
+        <Style x:Key="MetricCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        
+        <Style x:Key="MetricLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        
+        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+        
+        <Style x:Key="MetricUnitStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource AccentCyan}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Margin" Value="5,0,0,3"/>
+        </Style>
+        
+        <!-- Custom Tab Style -->
+        <Style x:Key="ModernTabControl" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <Style x:Key="ModernTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" 
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="0,0,0,2"
+                                BorderBrush="Transparent"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" 
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource AccentCyan}"/>
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="260"/> <!-- Artificial Horizon -->
+            <RowDefinition Height="*"/>   <!-- Tabbed Content -->
+        </Grid.RowDefinitions>
+
+        <!-- ARTIFICIAL HORIZON -->
+        <Border Grid.Row="0"
+                Background="{StaticResource CardBackground}" 
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Margin="10,10,10,5">
+            <Grid>
+                <views:ArtificialHorizon Roll="{Binding Roll}" 
+                                        Pitch="{Binding Pitch}"/>
+                
+                <!-- Overlay Label -->
+                <TextBlock Text="ATTITUDE" 
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Top"
+                          Margin="15,15"
+                          Style="{StaticResource MetricLabelStyle}"
+                          Foreground="{StaticResource PrimaryText}"
+                          FontSize="11"/>
+                
+                <!-- Angle Readout -->
+                <Border Background="#1C2128" 
+                       BorderBrush="{StaticResource BorderBrush}"
+                       BorderThickness="1"
+                       CornerRadius="4"
+                       Padding="10,5"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Bottom"
+                       Margin="0,0,0,15">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ROLL: " 
+                                  Foreground="{StaticResource SecondaryText}"
+                                  FontSize="11"
+                                  Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding Roll, StringFormat=F0}" 
+                                  Foreground="{StaticResource AccentCyan}"
+                                  FontSize="13"
+                                  FontWeight="Bold"/>
+                        <TextBlock Text="°" 
+                                  Foreground="{StaticResource AccentCyan}"
+                                  FontSize="11"
+                                  Margin="2,0,15,0"/>
+                        
+                        <TextBlock Text="PITCH: " 
+                                  Foreground="{StaticResource SecondaryText}"
+                                  FontSize="11"
+                                  Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding Pitch, StringFormat=F0}" 
+                                  Foreground="{StaticResource AccentCyan}"
+                                  FontSize="13"
+                                  FontWeight="Bold"/>
+                        <TextBlock Text="°" 
+                                  Foreground="{StaticResource AccentCyan}"
+                                  FontSize="11"
+                                  Margin="2,0,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- TABBED PANELS -->
+        <TabControl Grid.Row="1" 
+                    Style="{StaticResource ModernTabControl}"
+                    Margin="10,5,10,10">
+            
+            <!-- TAB 1: DATA -->
+            <TabItem Header="DATA" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:DataTabView DataContext="{Binding}"/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 2: MESSAGES -->
+            <TabItem Header="MESSAGES" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:MessagesTabView DataContext="{Binding DataContext.Messages, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 3: RC CHANNELS -->
+            <TabItem Header="RC" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:RcChannelsTabView DataContext="{Binding DataContext.RcChannels, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 4: PREARM -->
+            <TabItem Header="PREARM" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:PrearmTabView DataContext="{Binding DataContext.Preflight, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 5: ACTIONS -->
+            <TabItem Header="ACTIONS" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:ActionsTabView DataContext="{Binding DataContext.Actions, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 6: FAILSAFE -->
+            <TabItem Header="FAILSAFE" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:FailsafeTabView/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- TAB 7: 3D MODEL -->
+            <TabItem Header="3D MODEL" Style="{StaticResource ModernTabItem}">
+                <views:Model3DTabView Roll="{Binding Roll}"
+                                      Pitch="{Binding Pitch}"
+                                      Yaw="{Binding Yaw}"/>
+            </TabItem>
+            <!-- TAB: MISSION -->
+            <TabItem Header="MISSION" Style="{StaticResource ModernTabItem}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:MissionTabView DataContext="{Binding DataContext.Mission, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

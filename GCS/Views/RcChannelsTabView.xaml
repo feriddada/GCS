@@ -1,0 +1,139 @@
+<UserControl x:Class="GCS.Views.RcChannelsTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="480">
+    
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="CardBackground" Color="#1C2128"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2D333D"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#E6EDF3"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#8B949E"/>
+        <SolidColorBrush x:Key="AccentCyan" Color="#39D0D8"/>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                  Text="RC CHANNELS (1000-2000 PWM)" 
+                  Foreground="{StaticResource SecondaryText}"
+                  FontSize="11"
+                  FontWeight="Bold"
+                  Margin="5,5,5,10"/>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="1"
+                Background="{StaticResource CardBackground}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12,8"
+                Margin="5,0,5,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CHANNELS" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="9"/>
+                    <TextBlock Text="{Binding ChannelCount}" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="14"
+                              FontWeight="Bold"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="RSSI" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="9"/>
+                    <TextBlock Text="{Binding RssiPercent}" 
+                              Foreground="{StaticResource AccentCyan}"
+                              FontSize="14"
+                              FontWeight="Bold"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="LAST UPDATE" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="9"/>
+                    <TextBlock Text="{Binding LastUpdate}" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="10"
+                              FontFamily="Consolas"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- RC Channel Bars - Bound to Channels collection -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Channels}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{StaticResource CardBackground}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="12,8"
+                                Margin="5,0,5,6">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Channel Label & Value -->
+                                <Grid Grid.Row="0" Margin="0,0,0,6">
+                                    <TextBlock HorizontalAlignment="Left"
+                                              Text="{Binding ChannelName}"
+                                              Foreground="{StaticResource SecondaryText}"
+                                              FontSize="11"
+                                              FontWeight="Bold"/>
+                                    <TextBlock HorizontalAlignment="Right"
+                                              Text="{Binding RawValue}"
+                                              Foreground="{StaticResource PrimaryText}"
+                                              FontSize="13"
+                                              FontWeight="Bold"
+                                              FontFamily="Consolas"/>
+                                </Grid>
+                                
+                                <!-- Progress Bar Background -->
+                                <Border Grid.Row="1" 
+                                       Background="#0A0E14"
+                                       CornerRadius="3"
+                                       Height="8">
+                                    <!-- Progress Bar Fill -->
+                                    <Border CornerRadius="3"
+                                           HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource AccentCyan}"/>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.Width>
+                                            <MultiBinding Converter="{StaticResource PercentToWidthConverter}" FallbackValue="0">
+                                                <Binding Path="NormalizedValue"/>
+                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border, AncestorLevel=2}"/>
+                                            </MultiBinding>
+                                        </Border.Width>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,146 @@
+<UserControl x:Class="GCS.Views.AlertsPanelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="1600">
+    
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="PanelBackground" Color="#151922"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2D333D"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#E6EDF3"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#8B949E"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#3FB950"/>
+        <SolidColorBrush x:Key="AccentOrange" Color="#FF9500"/>
+        <SolidColorBrush x:Key="AccentRed" Color="#F85149"/>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PanelBackground}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: Status Icons -->
+        <StackPanel Grid.Column="0" 
+                    Orientation="Horizontal" 
+                    VerticalAlignment="Center"
+                    Margin="15,0">
+            <!-- Link Status -->
+            <Border Background="#1C2128" 
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12,8"
+                    Margin="0,0,10,0">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="12" Height="12" Margin="0,0,8,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource AccentRed}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding LinkAlive}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource AccentGreen}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="LINK" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="11"
+                              FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Attitude Status -->
+            <Border Background="#1C2128" 
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12,8"
+                    Margin="0,0,10,0">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="12" Height="12" Margin="0,0,8,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource AccentRed}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AttitudeFresh}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource AccentGreen}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="ATT" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="11"
+                              FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Position Status -->
+            <Border Background="#1C2128" 
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12,8">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="12" Height="12" Margin="0,0,8,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource AccentRed}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PositionFresh}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource AccentGreen}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="GPS" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="11"
+                              FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Right: Messages/Alerts Scrolling Area -->
+        <ScrollViewer Grid.Column="1" 
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="10,10">
+            <ItemsControl x:Name="AlertsList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#1C2128" 
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10,6"
+                                Margin="0,0,10,5">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{StaticResource AccentGreen}"/>
+                                    <!-- Add triggers for different severity levels -->
+                                </Style>
+                            </Border.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Timestamp, StringFormat=HH:mm:ss}" 
+                                          Foreground="{StaticResource SecondaryText}"
+                                          FontSize="11"
+                                          FontFamily="Consolas"
+                                          Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Message}" 
+                                          Foreground="{StaticResource PrimaryText}"
+                                          FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

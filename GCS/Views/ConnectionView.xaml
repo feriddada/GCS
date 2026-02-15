@@ -1,0 +1,170 @@
+<UserControl x:Class="GCS.Views.ConnectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:GCS"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
+        
+        <SolidColorBrush x:Key="CardBackground" Color="#1C2128"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2D333D"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#E6EDF3"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#8B949E"/>
+        <SolidColorBrush x:Key="AccentCyan" Color="#39D0D8"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#3FB950"/>
+        <SolidColorBrush x:Key="AccentRed" Color="#F85149"/>
+        
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,8,0,4"/>
+        </Style>
+        
+        <!-- Remove local ComboBox style - use global from App.xaml -->
+        
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#0A0E14"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentCyan}"/>
+            <Setter Property="Foreground" Value="#0A0E14"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#4DD4DC"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{StaticResource BorderBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource CardBackground}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20">
+                <!-- Header -->
+                <TextBlock Text="CONNECTION" 
+                          FontSize="18" 
+                          FontWeight="Bold" 
+                          Foreground="{StaticResource PrimaryText}"
+                          Margin="0,0,0,20"/>
+
+                <!-- Transport Type -->
+                <TextBlock Text="TRANSPORT TYPE" Style="{StaticResource LabelStyle}"/>
+                <ComboBox ItemsSource="{Binding TransportTypes}"
+                         SelectedItem="{Binding SelectedTransportType}"
+                         Margin="0,0,0,8"/>
+
+                <!-- Serial Configuration -->
+                <StackPanel Visibility="{Binding IsSerialSelected, Converter={StaticResource BoolToVisConverter}}">
+                    <TextBlock Text="SERIAL PORT" Style="{StaticResource LabelStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ComboBox Grid.Column="0"
+                                 ItemsSource="{Binding AvailableSerialPorts}"
+                                 SelectedItem="{Binding SelectedSerialPort}"
+                                 Margin="0,0,8,8"/>
+                        
+                        <Button Grid.Column="1" 
+                               Content="⟳" 
+                               Width="32" 
+                               Height="32"
+                               Margin="0,0,0,8"
+                               FontSize="18"
+                               Background="{StaticResource BorderBrush}"
+                               Foreground="{StaticResource PrimaryText}"
+                               Command="{Binding RefreshPortsCommand}"
+                               ToolTip="Refresh Ports"/>
+                    </Grid>
+
+                    <TextBlock Text="BAUD RATE" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding BaudRates}"
+                             SelectedItem="{Binding BaudRate}"
+                             Margin="0,0,0,8"/>
+                </StackPanel>
+
+                <!-- TCP Configuration -->
+                <StackPanel Visibility="{Binding IsTcpSelected, Converter={StaticResource BoolToVisConverter}}">
+                    <TextBlock Text="HOST" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TcpHost, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="PORT" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TcpPort, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <!-- UDP Configuration -->
+                <StackPanel Visibility="{Binding IsUdpSelected, Converter={StaticResource BoolToVisConverter}}">
+                    <TextBlock Text="LOCAL PORT" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding UdpLocalPort, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="REMOTE HOST" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding UdpRemoteHost, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="REMOTE PORT" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding UdpRemotePort, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <!-- Connection Buttons -->
+                <Button Content="CONNECT" 
+                       Command="{Binding ConnectCommand}"
+                       IsEnabled="{Binding IsDisconnected}"
+                       Margin="0,16,0,8"
+                       Background="{StaticResource AccentGreen}"/>
+                
+                <Button Content="DISCONNECT" 
+                       Command="{Binding DisconnectCommand}"
+                       IsEnabled="{Binding IsConnected}"
+                       Background="{StaticResource AccentRed}"/>
+
+                <!-- Status -->
+                <Border Background="#0A0E14" 
+                       BorderBrush="{StaticResource BorderBrush}" 
+                       BorderThickness="1"
+                       CornerRadius="4"
+                       Padding="12"
+                       Margin="0,20,0,0">
+                    <TextBlock Text="{Binding StatusMessage}" 
+                              Foreground="{StaticResource AccentCyan}"
+                              FontSize="12"
+                              TextWrapping="Wrap"
+                              TextAlignment="Center"
+                              Style="{x:Null}"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

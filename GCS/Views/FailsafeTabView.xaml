@@ -1,0 +1,182 @@
+<UserControl x:Class="GCS.Views.FailsafeTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="480">
+    
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="CardBackground" Color="#1C2128"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2D333D"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#E6EDF3"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#8B949E"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#3FB950"/>
+        <SolidColorBrush x:Key="AccentOrange" Color="#FF9500"/>
+        <SolidColorBrush x:Key="AccentRed" Color="#F85149"/>
+    </UserControl.Resources>
+
+    <StackPanel Margin="10">
+        
+        <TextBlock Text="FAILSAFE STATUS" 
+                  Foreground="{StaticResource SecondaryText}"
+                  FontSize="11"
+                  FontWeight="Bold"
+                  Margin="5,5,5,15"/>
+        
+        <!-- RC Failsafe -->
+        <Border Background="{StaticResource CardBackground}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="15"
+                Margin="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{StaticResource AccentGreen}" Margin="0,0,12,0"/>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="RC FAILSAFE" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="13"
+                              FontWeight="Bold"/>
+                    <TextBlock Text="Radio Control Link" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="10"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="2"
+                          Text="ACTIVE"
+                          Foreground="{StaticResource AccentGreen}"
+                          FontSize="11"
+                          FontWeight="Bold"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Battery Failsafe -->
+        <Border Background="{StaticResource CardBackground}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="15"
+                Margin="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{StaticResource AccentGreen}" Margin="0,0,12,0"/>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="BATTERY FAILSAFE" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="13"
+                              FontWeight="Bold"/>
+                    <TextBlock Text="Low Battery Protection" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="10"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="2"
+                          Text="ACTIVE"
+                          Foreground="{StaticResource AccentGreen}"
+                          FontSize="11"
+                          FontWeight="Bold"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- GPS Failsafe -->
+        <Border Background="{StaticResource CardBackground}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="15"
+                Margin="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{StaticResource AccentGreen}" Margin="0,0,12,0"/>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="GPS FAILSAFE" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="13"
+                              FontWeight="Bold"/>
+                    <TextBlock Text="GPS Signal Loss" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="10"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="2"
+                          Text="ACTIVE"
+                          Foreground="{StaticResource AccentGreen}"
+                          FontSize="11"
+                          FontWeight="Bold"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- GCS Failsafe -->
+        <Border Background="{StaticResource CardBackground}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="15"
+                Margin="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{StaticResource AccentGreen}" Margin="0,0,12,0"/>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="GCS FAILSAFE" 
+                              Foreground="{StaticResource PrimaryText}"
+                              FontSize="13"
+                              FontWeight="Bold"/>
+                    <TextBlock Text="Telemetry Link Loss" 
+                              Foreground="{StaticResource SecondaryText}"
+                              FontSize="10"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="2"
+                          Text="ACTIVE"
+                          Foreground="{StaticResource AccentGreen}"
+                          FontSize="11"
+                          FontWeight="Bold"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Info Box -->
+        <Border Background="#0A0E14"
+                BorderBrush="{StaticResource AccentOrange}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12"
+                Margin="5,15,5,5">
+            <TextBlock TextWrapping="Wrap"
+                      Foreground="{StaticResource SecondaryText}"
+                      FontSize="11">
+                <Run Text="Failsafe actions will be triggered automatically if any critical system fails. Configure failsafe parameters in mission planner."/>
+            </TextBlock>
+        </Border>
+
+    </StackPanel>
+</UserControl>
