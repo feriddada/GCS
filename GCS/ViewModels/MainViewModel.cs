@@ -45,7 +45,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ActionsViewModel? Actions { get; private set; }
     public MissionViewModel Mission { get; } = new();
     public WeatherViewModel Weather { get; }
-
+    public FailsafeViewModel Failsafe { get; }
     // ═══════════════════════════════════════════════════════════════
     // Constructor
     // ═══════════════════════════════════════════════════════════════
@@ -60,6 +60,19 @@ public class MainViewModel : ViewModelBase, IDisposable
         RcChannels = new RcChannelsViewModel();
 
         Weather = new WeatherViewModel("4970995a0d51b7f11323001c6a860264", "Baku", "AZ");
+
+        Failsafe = new FailsafeViewModel(
+            setParamFunc: async (name, value) =>
+            {
+                if (_backend != null)
+                    await _backend.SetParameterAsync(name, value);
+            },
+            requestParamFunc: async (name) =>
+            {
+                if (_backend != null)
+                    await _backend.RequestParameterAsync(name);
+            }
+        );
         // Wire up connection events
         Connection.ConnectRequested += OnConnectRequested;
         Connection.DisconnectRequested += OnDisconnectRequested;
@@ -85,6 +98,8 @@ public class MainViewModel : ViewModelBase, IDisposable
             _backend.AutopilotMessageReceived += OnAutopilotMessage;
             _backend.RcChannelsReceived += OnRcChannelsReceived;
 
+
+            _backend.ParameterReceived += OnParameterReceived;
             // 3. Create Actions ViewModel
             Actions = new ActionsViewModel(_backend);
             OnPropertyChanged(nameof(Actions));
@@ -143,6 +158,8 @@ public class MainViewModel : ViewModelBase, IDisposable
             await _backend.StartAsync(_cts.Token);
 
             Connection.SetConnected();
+            Failsafe.UpdateConnectionState(true);
+            _ = Failsafe.RefreshFailsafeParams();
         }
         catch (Exception ex)
         {
@@ -160,7 +177,10 @@ public class MainViewModel : ViewModelBase, IDisposable
     // ═══════════════════════════════════════════════════════════════
     // Event Handlers
     // ═══════════════════════════════════════════════════════════════
-
+    private void OnParameterReceived(string paramId, float value)
+    {
+        Failsafe.OnParameterReceived(paramId, value);
+    }
     private void OnTransportStateChanged(TransportState state)
     {
         switch (state)
@@ -263,7 +283,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             _backend.TransportStateChanged -= OnTransportStateChanged;
             _backend.AutopilotMessageReceived -= OnAutopilotMessage;
             _backend.RcChannelsReceived -= OnRcChannelsReceived;
-
+            _backend.ParameterReceived -= OnParameterReceived;
             if (_cts != null)
             {
                 _cts.Cancel();
@@ -278,6 +298,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
         _transport = null;
         _missionService = null;
+        Failsafe.UpdateConnectionState(false);
     }
 
     public async Task ShutdownAsync()

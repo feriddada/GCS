@@ -33,6 +33,12 @@ public interface IMavlinkBackend : IDisposable
     event Action<byte>? MissionAckReceived;          // result
 
     // ═══════════════════════════════════════════════════════════════
+    // RX Events - Parameters
+    // ═══════════════════════════════════════════════════════════════
+
+    event Action<string, float>? ParameterReceived;  // paramId, value
+
+    // ═══════════════════════════════════════════════════════════════
     // Connection State Events
     // ═══════════════════════════════════════════════════════════════
 
@@ -58,9 +64,6 @@ public interface IMavlinkBackend : IDisposable
     // TX Methods - Commands
     // ═══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Send COMMAND_LONG (msg 76) to the connected vehicle.
-    /// </summary>
     Task SendCommandLongAsync(
         ushort command,
         float param1 = 0, float param2 = 0, float param3 = 0, float param4 = 0,
@@ -68,28 +71,26 @@ public interface IMavlinkBackend : IDisposable
         byte confirmation = 0,
         CancellationToken ct = default);
 
-    /// <summary>
-    /// Send SET_MODE (msg 11) to the connected vehicle.
-    /// </summary>
     Task SendSetModeAsync(
         byte baseMode,
         uint customMode,
         CancellationToken ct = default);
 
-    /// <summary>
-    /// Send ARM/DISARM command to the vehicle.
-    /// </summary>
     Task SendArmDisarmAsync(
         bool arm,
         CancellationToken ct = default);
 
     // ═══════════════════════════════════════════════════════════════
+    // TX Methods - Parameters
+    // ═══════════════════════════════════════════════════════════════
+
+    Task SetParameterAsync(string paramId, float value, CancellationToken ct = default);
+    Task RequestParameterAsync(string paramId, CancellationToken ct = default);
+
+    // ═══════════════════════════════════════════════════════════════
     // TX Methods - Raw Packet
     // ═══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Send a raw MAVLink packet (for mission protocol, etc.)
-    /// </summary>
     Task SendRawAsync(
         ReadOnlyMemory<byte> packet,
         CancellationToken ct = default);

@@ -1,6 +1,8 @@
 ﻿using HelixToolkit.Wpf;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,29 +13,25 @@ namespace GCS.Views;
 
 public partial class Model3DTabView : UserControl
 {
-    // Configuration
-    private const string DefaultStlPath = "C:\\Users\\samad.samadov\\Desktop\\GCS\\GCS\\Models\\WCR.master_1.stl";
-    private const double ModelScale = 0.001;
-    private const double InitialYawOffset = 75.0;
+    // Just use filename - we'll search for it
+    private const string DefaultStlFilename = "WCR.master_1.stl";
+    private const double ModelScale = 0.01;
+    private const double InitialYawOffset = 0.0;
     private const int UpdateIntervalMs = 33;
 
-    // 3D Transform State
     private Transform3DGroup? _modelTransformGroup;
     private AxisAngleRotation3D? _rotationRoll;
     private AxisAngleRotation3D? _rotationPitch;
     private AxisAngleRotation3D? _rotationYaw;
     private bool _modelLoaded;
 
-    // Update Throttling
     private readonly DispatcherTimer _updateTimer;
     private double _targetRoll;
     private double _targetPitch;
     private double _targetYaw;
     private bool _needsUpdate;
 
-    // ═══════════════════════════════════════════════════════════════
-    // Dependency Properties
-    // ═══════════════════════════════════════════════════════════════
+    #region Dependency Properties
 
     public static readonly DependencyProperty RollProperty =
         DependencyProperty.Register(nameof(Roll), typeof(double), typeof(Model3DTabView),
@@ -49,7 +47,7 @@ public partial class Model3DTabView : UserControl
 
     public static readonly DependencyProperty StlModelPathProperty =
         DependencyProperty.Register(nameof(StlModelPath), typeof(string), typeof(Model3DTabView),
-            new PropertyMetadata(DefaultStlPath, OnStlPathChanged));
+            new PropertyMetadata(DefaultStlFilename, OnStlPathChanged));
 
     public double Roll
     {
@@ -86,9 +84,13 @@ public partial class Model3DTabView : UserControl
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // Constructor
-    // ═══════════════════════════════════════════════════════════════
+    private static void OnStlPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is Model3DTabView view && view.IsLoaded)
+            view.LoadSTLModel();
+    }
+
+    #endregion
 
     public Model3DTabView()
     {
@@ -107,14 +109,12 @@ public partial class Model3DTabView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        Debug.WriteLine("[Model3D] OnLoaded");
         LoadSTLModel();
         if (IsVisible) _updateTimer.Start();
     }
 
-    private void OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        _updateTimer.Stop();
-    }
+    private void OnUnloaded(object sender, RoutedEventArgs e) => _updateTimer.Stop();
 
     private void OnVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -129,75 +129,136 @@ public partial class Model3DTabView : UserControl
         UpdateModelRotation();
     }
 
-    private static void OnStlPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is Model3DTabView view) view.LoadSTLModel();
-    }
-
     private void LoadSTLModel()
     {
         try
         {
-            string stlPath = ResolveStlPath();
-            if (!File.Exists(stlPath))
+            string? stlPath = FindStlFile(StlModelPath ?? DefaultStlFilename);
+
+            if (stlPath != null)
             {
-                LoadFallbackModel();
-                return;
+                Debug.WriteLine($"[Model3D] Found STL at: {stlPath}");
+                var importer = new StLReader();
+                var model = importer.Read(stlPath);
+
+                if (model != null && model.Children.Count > 0)
+                {
+                    var bounds = model.Bounds;
+                    var center = new Point3D(
+                        bounds.X + bounds.SizeX / 2,
+                        bounds.Y + bounds.SizeY / 2,
+                        bounds.Z + bounds.SizeZ / 2);
+
+                    SetupModelTransforms(model, center);
+                    ApplyMaterial(model);
+                    UAVModelVisual.Content = model;
+                    _modelLoaded = true;
+                    Debug.WriteLine("[Model3D] STL loaded successfully!");
+                    return;
+                }
             }
 
-            var importer = new StLReader();
-            var model = importer.Read(stlPath);
-            if (model == null)
-            {
-                LoadFallbackModel();
-                return;
-            }
-
-            // Calculate model bounds and center
-            var bounds = model.Bounds;
-            var center = new Point3D(
-                (bounds.X + bounds.SizeX / 2),
-                (bounds.Y + bounds.SizeY / 2),
-                (bounds.Z + bounds.SizeZ / 2));
-
-            SetupModelTransforms(model, center);
-            ApplyMaterial(model);
-            UAVModelVisual.Content = model;
-            _modelLoaded = true;
+            Debug.WriteLine("[Model3D] STL not found, using fallback model");
+            LoadFallbackModel();
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[Model3D] Error: {ex.Message}");
             LoadFallbackModel();
         }
     }
 
-    private string ResolveStlPath()
+    /// <summary>
+    /// Searches for the STL file in multiple locations
+    /// </summary>
+    private string? FindStlFile(string filename)
     {
-        string path = StlModelPath ?? DefaultStlPath;
-        if (!Path.IsPathRooted(path))
-            path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
-        return path;
+        // If it's already a full path and exists, use it
+        if (Path.IsPathRooted(filename) && File.Exists(filename))
+            return filename;
+
+        // Get just the filename if a path was provided
+        string justFilename = Path.GetFileName(filename);
+
+        // Get base directories to search
+        string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+        string? projectDir = GetProjectDirectory();
+
+        // List of paths to try
+        var searchPaths = new[]
+        {
+            // Direct path as provided
+            Path.Combine(exeDir, filename),
+            
+            // In Models folder (output directory)
+            Path.Combine(exeDir, "Models", justFilename),
+            
+            // In Assets folder (output directory)
+            Path.Combine(exeDir, "Assets", justFilename),
+            
+            // Just filename in exe directory
+            Path.Combine(exeDir, justFilename),
+            
+            // Project directory paths (for debugging)
+            projectDir != null ? Path.Combine(projectDir, "Models", justFilename) : null,
+            projectDir != null ? Path.Combine(projectDir, "Assets", justFilename) : null,
+            projectDir != null ? Path.Combine(projectDir, justFilename) : null,
+        };
+
+        foreach (var path in searchPaths)
+        {
+            if (path != null && File.Exists(path))
+            {
+                Debug.WriteLine($"[Model3D] Found at: {path}");
+                return path;
+            }
+            Debug.WriteLine($"[Model3D] Not found: {path}");
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Try to find the project directory (for development)
+    /// </summary>
+    private string? GetProjectDirectory()
+    {
+        try
+        {
+            // Go up from bin\Debug\net8.0-windows to project root
+            string? dir = AppDomain.CurrentDomain.BaseDirectory;
+            for (int i = 0; i < 4 && dir != null; i++)
+            {
+                dir = Directory.GetParent(dir)?.FullName;
+            }
+
+            // Check if it looks like a project directory
+            if (dir != null && (File.Exists(Path.Combine(dir, "GCS.csproj")) ||
+                               Directory.Exists(Path.Combine(dir, "Models"))))
+            {
+                return dir;
+            }
+        }
+        catch { }
+
+        return null;
     }
 
     private void SetupModelTransforms(Model3DGroup model, Point3D modelCenter)
     {
         _modelTransformGroup = new Transform3DGroup();
 
-        // 1. First, translate the model so its center is at the origin
-        //    This ensures rotation happens around the model's center
         _modelTransformGroup.Children.Add(new TranslateTransform3D(
-            -modelCenter.X,
-            -modelCenter.Y,
-            -modelCenter.Z));
+            -modelCenter.X, -modelCenter.Y, -modelCenter.Z));
 
-        // 2. Apply scale
         _modelTransformGroup.Children.Add(new ScaleTransform3D(ModelScale, ModelScale, ModelScale));
 
-        // 3. Apply initial orientation offset
-        _modelTransformGroup.Children.Add(new RotateTransform3D(
-            new AxisAngleRotation3D(new Vector3D(0, 0, 1), InitialYawOffset)));
+        if (Math.Abs(InitialYawOffset) > 0.001)
+        {
+            _modelTransformGroup.Children.Add(new RotateTransform3D(
+                new AxisAngleRotation3D(new Vector3D(0, 0, 1), InitialYawOffset)));
+        }
 
-        // 4. Dynamic rotations (around origin, which is now the model center)
         _rotationYaw = new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0);
         _rotationPitch = new AxisAngleRotation3D(new Vector3D(-1, 0, 0), 0);
         _rotationRoll = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
@@ -211,8 +272,9 @@ public partial class Model3DTabView : UserControl
 
     private void ApplyMaterial(Model3DGroup model)
     {
-        var material = new DiffuseMaterial(new SolidColorBrush(Colors.AntiqueWhite));
+        var material = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(200, 200, 210)));
         material.Freeze();
+
         foreach (var child in model.Children)
         {
             if (child is GeometryModel3D geometry)
@@ -227,40 +289,45 @@ public partial class Model3DTabView : UserControl
     {
         var model = new Model3DGroup();
 
-        var bodyMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(80, 80, 90)));
+        var bodyMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(100, 100, 110)));
         bodyMaterial.Freeze();
-        var noseMaterial = new DiffuseMaterial(new SolidColorBrush(Colors.OrangeRed));
+        var wingMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(80, 80, 90)));
+        wingMaterial.Freeze();
+        var noseMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(255, 100, 50)));
         noseMaterial.Freeze();
 
-        // Fuselage (already centered at origin)
-        var fuselage = new GeometryModel3D(CreateBoxMesh(0.4, 0.1, 0.08), bodyMaterial);
+        // Fuselage
+        var fuselage = new GeometryModel3D(CreateBoxMesh(0.08, 0.5, 0.06), bodyMaterial);
         fuselage.BackMaterial = bodyMaterial;
         model.Children.Add(fuselage);
 
         // Wing
-        var wing = new GeometryModel3D(CreateBoxMesh(0.08, 0.6, 0.02), bodyMaterial);
-        wing.BackMaterial = bodyMaterial;
+        var wing = new GeometryModel3D(CreateBoxMesh(0.8, 0.1, 0.015), wingMaterial);
+        wing.BackMaterial = wingMaterial;
+        wing.Transform = new TranslateTransform3D(0, -0.05, 0.01);
         model.Children.Add(wing);
 
-        // Tail vertical
-        var tailVert = new GeometryModel3D(CreateBoxMesh(0.02, 0.02, 0.1), bodyMaterial);
-        tailVert.BackMaterial = bodyMaterial;
-        tailVert.Transform = new TranslateTransform3D(-0.18, 0, 0.05);
+        // Tail Vertical
+        var tailVert = new GeometryModel3D(CreateBoxMesh(0.015, 0.08, 0.12), wingMaterial);
+        tailVert.BackMaterial = wingMaterial;
+        tailVert.Transform = new TranslateTransform3D(0, -0.22, 0.06);
         model.Children.Add(tailVert);
 
-        // Tail horizontal
-        var tailHoriz = new GeometryModel3D(CreateBoxMesh(0.02, 0.2, 0.02), bodyMaterial);
-        tailHoriz.BackMaterial = bodyMaterial;
-        tailHoriz.Transform = new TranslateTransform3D(-0.18, 0, 0.08);
+        // Tail Horizontal
+        var tailHoriz = new GeometryModel3D(CreateBoxMesh(0.25, 0.05, 0.01), wingMaterial);
+        tailHoriz.BackMaterial = wingMaterial;
+        tailHoriz.Transform = new TranslateTransform3D(0, -0.22, 0.1);
         model.Children.Add(tailHoriz);
 
         // Nose
-        var nose = new GeometryModel3D(CreatePyramidMesh(0.1, 0.05), noseMaterial);
+        var nose = new GeometryModel3D(CreatePyramidMesh(0.12, 0.04), noseMaterial);
         nose.BackMaterial = noseMaterial;
-        nose.Transform = new TranslateTransform3D(0.2, 0, 0);
+        var noseTransform = new Transform3DGroup();
+        noseTransform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), 90)));
+        noseTransform.Children.Add(new TranslateTransform3D(0, 0.28, 0));
+        nose.Transform = noseTransform;
         model.Children.Add(nose);
 
-        // Fallback model is already centered, pass zero center
         SetupModelTransforms(model, new Point3D(0, 0, 0));
         UAVModelVisual.Content = model;
         _modelLoaded = true;
@@ -280,7 +347,7 @@ public partial class Model3DTabView : UserControl
         mesh.Positions.Add(new Point3D(hx, hy, hz));
         mesh.Positions.Add(new Point3D(-hx, hy, hz));
 
-        int[] indices = { 0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 3, 2, 6, 3, 6, 7, 0, 5, 1, 0, 4, 5, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2 };
+        int[] indices = { 0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 2, 3, 7, 2, 7, 6, 0, 4, 7, 0, 7, 3, 1, 2, 6, 1, 6, 5 };
         foreach (var i in indices) mesh.TriangleIndices.Add(i);
 
         mesh.Freeze();
@@ -321,8 +388,11 @@ public partial class Model3DTabView : UserControl
 
     public void ResetCamera()
     {
-        Viewport3D.Camera.Position = new Point3D(2, 2, 2);
-        Viewport3D.Camera.LookDirection = new Vector3D(-1, -1, -1);
-        Viewport3D.Camera.UpDirection = new Vector3D(0, 0, 1);
+        if (Viewport3D?.Camera is PerspectiveCamera camera)
+        {
+            camera.Position = new Point3D(1, -1, 0.5);
+            camera.LookDirection = new Vector3D(-1, 1, -0.3);
+            camera.UpDirection = new Vector3D(0, 0, 1);
+        }
     }
 }

@@ -7,6 +7,7 @@ using GCS.Core.Transport;
 using MavLinkSharp;
 using MavLinkSharp.Enums;
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +24,7 @@ public sealed class MavlinkBackend : IMavlinkBackend
     private readonly MavlinkConnectionTracker _connection;
     private readonly CommandAckTracker _commandAckTracker;
     private readonly MavlinkFrameBuffer _frameBuffer = new();
+
     // ═══════════════════════════════════════════════════════════════
     // State
     // ═══════════════════════════════════════════════════════════════
@@ -31,17 +33,16 @@ public sealed class MavlinkBackend : IMavlinkBackend
     private Task? _tickTask;
     private TransportState _transportState = TransportState.Disconnected;
     private bool _disposed;
+    private byte _sequence = 0;
 
     // ═══════════════════════════════════════════════════════════════
     // Constants
     // ═══════════════════════════════════════════════════════════════
 
-    // GCS identity written into outgoing packet headers
     private const byte GcsSysId = 255;
     private const byte GcsCompId = 190; // MAV_COMP_ID_MISSIONPLANNER
-
-    // MAV_CMD constants
     private const ushort MAV_CMD_COMPONENT_ARM_DISARM = 400;
+    private const byte MAV_PARAM_TYPE_REAL32 = 9;
 
     // ═══════════════════════════════════════════════════════════════
     // Events - Telemetry
@@ -71,6 +72,12 @@ public sealed class MavlinkBackend : IMavlinkBackend
     public event Action<byte>? MissionAckReceived;
 
     // ═══════════════════════════════════════════════════════════════
+    // Events - Parameters
+    // ═══════════════════════════════════════════════════════════════
+
+    public event Action<string, float>? ParameterReceived;
+
+    // ═══════════════════════════════════════════════════════════════
     // Events - Connection State
     // ═══════════════════════════════════════════════════════════════
 
@@ -93,18 +100,14 @@ public sealed class MavlinkBackend : IMavlinkBackend
     {
         _transport = transport;
 
-        // Wire up transport events
         _transport.DataReceived += OnDataReceived;
         _transport.TransportError += OnTransportError;
 
-        // Create connection tracker
         _connection = new MavlinkConnectionTracker(TimeSpan.FromSeconds(3));
         _connection.ConnectionChanged += OnConnectionChanged;
 
-        // Create command ack tracker
         _commandAckTracker = new CommandAckTracker();
 
-        // Create dispatcher with all handlers
         _dispatcher = new MavlinkDispatcher(CreateHandlers());
     }
 
@@ -120,6 +123,7 @@ public sealed class MavlinkBackend : IMavlinkBackend
             new SysStatusHandler(s => BatteryReceived?.Invoke(s)),
             new RcChannelsHandler(s => RcChannelsReceived?.Invoke(s)),
             new MissionRequestHandler(seq => MissionRequestReceived?.Invoke(seq)),
+            
             // Message handlers
             new StatustextHandler(s => AutopilotMessageReceived?.Invoke(s)),
             
@@ -131,6 +135,9 @@ public sealed class MavlinkBackend : IMavlinkBackend
             new MissionItemIntRxHandler(item => MissionItemReceived?.Invoke(item)),
             new MissionRequestIntHandler(seq => MissionRequestReceived?.Invoke(seq)),
             new MissionAckHandler(result => MissionAckReceived?.Invoke(result)),
+            
+            // Parameter handler
+            new ParamValueHandler((id, val) => ParameterReceived?.Invoke(id, val)),
         };
     }
 
@@ -158,7 +165,6 @@ public sealed class MavlinkBackend : IMavlinkBackend
             throw;
         }
 
-        // Start tick loop for connection timeout and command ack timeout
         _tickTask = Task.Run(() => TickLoop(_cts.Token), _cts.Token);
     }
 
@@ -171,20 +177,12 @@ public sealed class MavlinkBackend : IMavlinkBackend
 
         if (_tickTask != null)
         {
-            try
-            {
-                await _tickTask;
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected
-            }
+            try { await _tickTask; }
+            catch (OperationCanceledException) { }
         }
 
         await _transport.StopAsync();
-
         _connection.Reset();
-
         _cts.Dispose();
         _cts = null;
 
@@ -238,20 +236,12 @@ public sealed class MavlinkBackend : IMavlinkBackend
             while (!token.IsCancellationRequested)
             {
                 var now = DateTime.UtcNow;
-
-                // Check connection timeout
                 _connection.Tick(now);
-
-                // Check command ack timeouts
                 _commandAckTracker.Tick();
-
                 await Task.Delay(200, token);
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Normal shutdown
-        }
+        catch (OperationCanceledException) { }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -311,12 +301,106 @@ public sealed class MavlinkBackend : IMavlinkBackend
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // TX - Parameters
+    // ═══════════════════════════════════════════════════════════════
+
+    public async Task SetParameterAsync(string paramId, float value, CancellationToken ct = default)
+    {
+        EnsureConnected();
+
+        // PARAM_SET (ID 23): target_sys(1) + target_comp(1) + param_id(16) + param_value(4) + param_type(1) = 23 bytes
+        var payload = new byte[23];
+        payload[0] = _connection.SystemId;
+        payload[1] = _connection.ComponentId;
+
+        var paramBytes = Encoding.ASCII.GetBytes(paramId);
+        Array.Copy(paramBytes, 0, payload, 2, Math.Min(paramBytes.Length, 16));
+
+        BitConverter.GetBytes(value).CopyTo(payload, 18);
+        payload[22] = MAV_PARAM_TYPE_REAL32;
+
+        var packet = BuildMavlink2Packet(23, payload);
+        await _transport.SendAsync(packet, ct);
+
+        System.Diagnostics.Debug.WriteLine($"[MavlinkBackend] SetParameter: {paramId} = {value}");
+    }
+
+    public async Task RequestParameterAsync(string paramId, CancellationToken ct = default)
+    {
+        EnsureConnected();
+
+        // PARAM_REQUEST_READ (ID 20): target_sys(1) + target_comp(1) + param_id(16) + param_index(2) = 20 bytes
+        var payload = new byte[20];
+        payload[0] = _connection.SystemId;
+        payload[1] = _connection.ComponentId;
+
+        var paramBytes = Encoding.ASCII.GetBytes(paramId);
+        Array.Copy(paramBytes, 0, payload, 2, Math.Min(paramBytes.Length, 16));
+
+        BitConverter.GetBytes((short)-1).CopyTo(payload, 18); // -1 = named lookup
+
+        var packet = BuildMavlink2Packet(20, payload);
+        await _transport.SendAsync(packet, ct);
+
+        System.Diagnostics.Debug.WriteLine($"[MavlinkBackend] RequestParameter: {paramId}");
+    }
+
+    private byte[] BuildMavlink2Packet(uint msgId, byte[] payload)
+    {
+        // MAVLink 2: STX(1) + LEN(1) + INCOMPAT(1) + COMPAT(1) + SEQ(1) + SYSID(1) + COMPID(1) + MSGID(3) + payload + CRC(2)
+        var packet = new byte[10 + payload.Length + 2];
+
+        packet[0] = 0xFD;                           // STX (MAVLink 2)
+        packet[1] = (byte)payload.Length;           // Payload length
+        packet[2] = 0;                              // Incompatibility flags
+        packet[3] = 0;                              // Compatibility flags
+        packet[4] = _sequence++;                    // Sequence
+        packet[5] = GcsSysId;                       // System ID
+        packet[6] = GcsCompId;                      // Component ID
+        packet[7] = (byte)(msgId & 0xFF);           // Message ID (low)
+        packet[8] = (byte)((msgId >> 8) & 0xFF);    // Message ID (mid)
+        packet[9] = (byte)((msgId >> 16) & 0xFF);   // Message ID (high)
+
+        Array.Copy(payload, 0, packet, 10, payload.Length);
+
+        ushort crc = CalculateCrc(packet, 1, 9 + payload.Length, GetCrcExtra(msgId));
+        packet[10 + payload.Length] = (byte)(crc & 0xFF);
+        packet[11 + payload.Length] = (byte)(crc >> 8);
+
+        return packet;
+    }
+
+    private static ushort CalculateCrc(byte[] buffer, int start, int length, byte crcExtra)
+    {
+        ushort crc = 0xFFFF;
+
+        for (int i = start; i < start + length; i++)
+        {
+            byte tmp = (byte)(buffer[i] ^ (crc & 0xFF));
+            tmp ^= (byte)(tmp << 4);
+            crc = (ushort)((crc >> 8) ^ (tmp << 8) ^ (tmp << 3) ^ (tmp >> 4));
+        }
+
+        // Add CRC extra
+        byte tmp2 = (byte)(crcExtra ^ (crc & 0xFF));
+        tmp2 ^= (byte)(tmp2 << 4);
+        crc = (ushort)((crc >> 8) ^ (tmp2 << 8) ^ (tmp2 << 3) ^ (tmp2 >> 4));
+
+        return crc;
+    }
+
+    private static byte GetCrcExtra(uint msgId) => msgId switch
+    {
+        20 => 214,  // PARAM_REQUEST_READ
+        22 => 220,  // PARAM_VALUE
+        23 => 168,  // PARAM_SET
+        _ => 0
+    };
+
+    // ═══════════════════════════════════════════════════════════════
     // TX - With Acknowledgement
     // ═══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Send a command and wait for COMMAND_ACK response.
-    /// </summary>
     public async Task<CommandAckResult> SendCommandWithAckAsync(
         ushort command,
         float param1 = 0, float param2 = 0, float param3 = 0, float param4 = 0,
@@ -325,18 +409,15 @@ public sealed class MavlinkBackend : IMavlinkBackend
     {
         EnsureConnected();
 
-        // Register for acknowledgement
         var ackTask = _commandAckTracker.Register(
             command,
             _connection.SystemId,
             _connection.ComponentId);
 
-        // Send the command
         await SendCommandLongAsync(
             command, param1, param2, param3, param4, param5, param6, param7,
             confirmation: 0, ct: ct);
 
-        // Wait for acknowledgement or timeout
         return await ackTask;
     }
 
@@ -352,9 +433,7 @@ public sealed class MavlinkBackend : IMavlinkBackend
 
     private void SetTransportState(TransportState state)
     {
-        if (_transportState == state)
-            return;
-
+        if (_transportState == state) return;
         _transportState = state;
         TransportStateChanged?.Invoke(state);
     }
@@ -365,9 +444,7 @@ public sealed class MavlinkBackend : IMavlinkBackend
 
     public void Dispose()
     {
-        if (_disposed)
-            return;
-
+        if (_disposed) return;
         _disposed = true;
 
         _transport.DataReceived -= OnDataReceived;
@@ -376,7 +453,6 @@ public sealed class MavlinkBackend : IMavlinkBackend
 
         _cts?.Cancel();
         _cts?.Dispose();
-
         _transport.Dispose();
     }
 }

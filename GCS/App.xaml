@@ -15,6 +15,7 @@
         <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <local:ZeroToVisibleConverter x:Key="ZeroToVisibleConverter"/>
+        <local:BoolToOnOffConverter x:Key="BoolToOnOffConverter"/>
   
         <Style TargetType="ComboBox">
             <Setter Property="Background" Value="#0D1117"/>

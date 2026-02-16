@@ -13,12 +13,19 @@ public static class MavlinkBootstrap
             0,   // HEARTBEAT
             1,   // SYS_STATUS
             11,  // SET_MODE
+            
+            // Parameter protocol
+            20,  // PARAM_REQUEST_READ
+            21,  // PARAM_REQUEST_LIST
+            22,  // PARAM_VALUE
+            23,  // PARAM_SET
+            
             30,  // ATTITUDE
             33,  // GLOBAL_POSITION_INT
             
             // Mission protocol
-            39,
-            40,
+            39,  // MISSION_ITEM
+            40,  // MISSION_REQUEST
             41,  // MISSION_SET_CURRENT
             43,  // MISSION_REQUEST_LIST
             44,  // MISSION_COUNT
