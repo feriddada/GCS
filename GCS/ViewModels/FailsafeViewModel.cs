@@ -350,7 +350,7 @@ public class FailsafeViewModel : ViewModelBase
             // Reset triggered states
             RcFailsafeTriggered = false;
             BatteryFailsafeTriggered = false;
-            GpsFailsafeTriggered = false;
+         
             GcsFailsafeTriggered = false;
         }
     }

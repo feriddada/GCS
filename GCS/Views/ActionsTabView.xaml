@@ -157,6 +157,12 @@
                     <ComboBoxItem Content="GUIDED"/>
                     <ComboBoxItem Content="CRUISE"/>
                     <ComboBoxItem Content="AUTOTUNE"/>
+                    <ComboBoxItem Content="QSTABILIZE"/>
+                    <ComboBoxItem Content="QHOVER"/>
+                    <ComboBoxItem Content="QLOITER"/>
+                    <ComboBoxItem Content="QLAND"/>
+                    <ComboBoxItem Content="QRTL"/>
+                    <ComboBoxItem Content="ACRO"/>
                 </ComboBox>
                 
                 <Button Content="SET MODE"
