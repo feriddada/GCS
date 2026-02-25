@@ -121,13 +121,13 @@ public class ActionsViewModel : ViewModelBase
             8 => FlightModeEnum.Guided,
             9 => FlightModeEnum.Cruise,
             10 => FlightModeEnum.Autotune,
-            11 => FlightModeEnum.QLoiter,
-            12 => FlightModeEnum.QStabilize,
-            13 => FlightModeEnum.QLand,
-            14 => FlightModeEnum.QStabilize,
-            15 => FlightModeEnum.QStabilize,
-            
-           
+            11 => FlightModeEnum.QStabilize,
+            12 => FlightModeEnum.QHover,
+            13 => FlightModeEnum.QLoiter,
+            14 => FlightModeEnum.QLand,
+            15 => FlightModeEnum.QRtl,
+            16 => FlightModeEnum.Acro,
+
             _ => null
         };
 
