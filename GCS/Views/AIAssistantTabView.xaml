@@ -1,22 +1,19 @@
 ﻿<UserControl x:Class="GCS.Views.AIAssistantTabView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="#161B22">
+    <Grid Background="#151922" Margin="15">
 
         <Grid.RowDefinitions>
 
             <!-- Header -->
-            <RowDefinition Height="75"/>
+            <RowDefinition Height="80"/>
 
-            <!-- Chat -->
+            <!-- Main -->
             <RowDefinition Height="*"/>
 
-            <!-- Input -->
+            <!-- Bottom -->
             <RowDefinition Height="70"/>
-
-            <!-- Bottom Buttons -->
-            <RowDefinition Height="65"/>
 
         </Grid.RowDefinitions>
 
@@ -24,370 +21,549 @@
         <!-- HEADER -->
         <!-- ======================================================= -->
 
-        <Border Grid.Row="0"
-                Margin="10"
-                CornerRadius="8"
-                Background="#1F2633">
+        <Border Background="#1E2530"
+            CornerRadius="8"
+            Padding="15">
 
-            <Grid Margin="20,10">
+            <Grid>
 
                 <Grid.ColumnDefinitions>
 
                     <ColumnDefinition/>
 
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="90"/>
 
                 </Grid.ColumnDefinitions>
 
                 <StackPanel VerticalAlignment="Center">
 
-                    <TextBlock Text="🤖 AI Flight Assistant"
-                               FontSize="24"
-                               FontWeight="Bold"
-                               Foreground="White"/>
-
-                    <TextBlock Margin="0,4,0,0"
-                               Text="Aircraft Intelligence Platform"
-                               FontSize="12"
-                               Foreground="#A0A0A0"/>
-
-                </StackPanel>
-
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-
-                    <Ellipse Width="10"
-                             Height="10"
-                             Fill="#00D26A"
-                             VerticalAlignment="Center"/>
-
-                    <TextBlock Margin="8,0,0,0"
-                               Text="Online"
-                               Foreground="White"
-                               FontWeight="SemiBold"/>
-
-                </StackPanel>
-
-            </Grid>
-
-        </Border>
-
-        <!-- ======================================================= -->
-        <!-- CHAT AREA -->
-        <!-- ======================================================= -->
-
-        <Border Grid.Row="1"
-        Margin="10,0,10,10"
-        Background="#1F2633"
-        CornerRadius="8">
-
-            <Grid>
-
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-
-                    <ListBox ItemsSource="{Binding Conversation}"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     Margin="15">
-
-                        <ListBox.ItemTemplate>
-
-                            <DataTemplate>
-
-                                <Border Margin="0,0,0,15"
-                                Padding="15"
-                                Background="#2A3441"
-                                CornerRadius="10"
-                                MaxWidth="850">
-
-                                    <StackPanel>
-
-                                        <DockPanel>
-
-                                            <Border Width="36"
-                                            Height="36"
-                                            CornerRadius="18"
-                                            Background="#00D26A"
-                                            Margin="0,0,10,0">
-
-                                                <TextBlock Text="🤖"
-                                                 FontSize="18"
-                                                 FontWeight="Bold"
-                                                 HorizontalAlignment="Center"
-                                                 VerticalAlignment="Center"
-                                                 Foreground="White"/>
-                                                 
-
-                                            </Border>
-
-                                            <StackPanel>
-
-                                                <TextBlock Text="AI Flight Assistant"
-           FontWeight="Bold"
-           FontSize="15"
-           Foreground="White"/>
-
-                                                <TextBlock
-    Margin="0,15,0,0"
-    Text="Welcome to AI Flight Assistant"
-    FontSize="14"
-    Foreground="White"
-    TextWrapping="Wrap"/>
-
-                                            </StackPanel>
-
-                                        </DockPanel>
-
-                                        <TextBlock Margin="0,15,0,0"
-                                           Text="{Binding Text}"
-                                           TextWrapping="Wrap"
-                                           Foreground="White"/>
-
-                                    </StackPanel>
-
-                                </Border>
-
-                            </DataTemplate>
-
-                        </ListBox.ItemTemplate>
-
-                    </ListBox>
-
-                </ScrollViewer>
-
-            </Grid>
-
-        </Border>
-
-        <Border Margin="0,0,0,15"
-                                        Padding="15"
-                                        CornerRadius="10"
-                                        Background="#2A3441"
-                                        MaxWidth="850"
-                                        HorizontalAlignment="Stretch">
-
-            
-                <StackPanel>
-
-                    <!-- Header -->
-
-                    <DockPanel>
-
-                        <Border Width="36"
-                                                    Height="36"
-                                                    CornerRadius="18"
-                                                    Background="#00D26A"
-                                                    Margin="0,0,10,0">
-
-                            <TextBlock
-                                                    Text="{Binding Avatar}"
-                                                    FontSize="14"
-                                                    FontWeight="Bold"
-                                                    Foreground="White"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"/>
-
-                        </Border>
-
-                        <StackPanel>
-
-                            <TextBlock
-                                                    Text="{Binding Sender}"
-                                                    FontWeight="Bold"
-                                                    FontSize="14"
-                                                    Foreground="White"/>
-
-                            <TextBlock
-                                                    Text="{Binding Time}"
-                                                    FontSize="10"
-                                                    Foreground="#909090"/>
-
-                        </StackPanel>
-
-                    </DockPanel>
-
-                    <!-- Message -->
+                    <TextBlock Text="AI Flight Assistant"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Foreground="White"/>
 
                     <TextBlock
-                                            Margin="0,15,0,0"
-                                            Text="{Binding Text}"
-                                            FontSize="14"
-                                            Foreground="White"
-                                            TextWrapping="Wrap"/>
+                    Text="Real-Time Aircraft Health Monitoring &amp;amp; Intelligent Decision Support"
+                    Margin="0,5,0,0"
+                    Foreground="#9A9A9A"
+                    FontSize="12"/>
+
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                    Width="70"
+                    Height="70"
+                    Background="White"
+                    CornerRadius="6">
+
+                    <Image Source="pack://application:,,,/Models/NAA_Logo.jpg"
+                       Stretch="Uniform"/>
+
+                </Border>
+
+            </Grid>
+
+        </Border>
+
+        <!-- ======================================================= -->
+        <!-- MAIN -->
+        <!-- ======================================================= -->
+
+        <Grid Grid.Row="1"
+          Margin="0,15">
+
+            <Grid.ColumnDefinitions>
+
+                <!-- Aircraft Status -->
+
+                <ColumnDefinition Width="320"/>
+
+                <ColumnDefinition Width="15"/>
+
+                <!-- Right -->
+
+                <ColumnDefinition Width="*"/>
+
+            </Grid.ColumnDefinitions>
+
+            <!-- =================================================== -->
+            <!-- AIRCRAFT STATUS -->
+            <!-- =================================================== -->
+
+            <Border Grid.Column="0"
+                Background="#1E2530"
+                CornerRadius="8"
+                Padding="20">
+
+                <StackPanel>
+
+                    <TextBlock
+                    Text="Aircraft Status"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Foreground="White"/>
+
+                    <TextBlock
+                    Text="Live Telemetry"
+                    Margin="0,3,0,20"
+                    Foreground="#8A8A8A"
+                    FontSize="11"/>
+
+                    <Separator Margin="0,0,0,15"/>
+
+                    <TextBlock
+                    Text="Flight Controller"
+                    Foreground="#00D26A"
+                    FontWeight="Bold"/>
+
+                    <TextBlock
+                    Text="Connected"
+                    Foreground="White"
+                    Margin="0,3,0,15"/>
+
+                    <TextBlock
+                    Text="Battery"
+                    Foreground="#00D26A"
+                    FontWeight="Bold"/>
+
+                    <TextBlock
+                    Text="{Binding BatteryVoltage,StringFormat={}{0:F2} V}"
+                    Margin="0,3,0,15"
+                    Foreground="White"/>
+
+                    <TextBlock
+                    Text="GPS"
+                    Foreground="#00D26A"
+                    FontWeight="Bold"/>
+
+                    <TextBlock
+                    Text="{Binding GpsSatellites,StringFormat={}{0} Satellites}"
+                    Margin="0,3,0,15"
+                    Foreground="White"/>
+
+                    <TextBlock
+                    Text="Flight Mode"
+                    Foreground="#00D26A"
+                    FontWeight="Bold"/>
+
+                    <TextBlock
+                    Text="{Binding FlightMode}"
+                    Margin="0,3,0,15"
+                    Foreground="White"/>
+
+                    <TextBlock
+                    Text="Armed"
+                    Foreground="#00D26A"
+                    FontWeight="Bold"/>
+
+                    <TextBlock
+                    Text="{Binding Armed}"
+                    Margin="0,3,0,20"
+                    Foreground="White"/>
+
+                    <Separator Margin="0,0,0,15"/>
+
+                    <TextBlock
+                    Text="Aircraft Health"
+                    FontWeight="Bold"
+                    Foreground="#00D26A"/>
+
+                    <TextBlock
+                    Text="{Binding OverallHealth,StringFormat={}{0}%}"
+                    Margin="0,5"
+                    HorizontalAlignment="Center"
+                    Foreground="White"/>
+
+                    <ProgressBar
+                    Height="18"
+                    Minimum="0"
+                    Maximum="100"
+                    Value="{Binding OverallHealth}"/>
+
+                    <TextBlock
+                    Margin="0,20,0,5"
+                    Text="Crash Risk"
+                    FontWeight="Bold"
+                    Foreground="#00D26A"/>
+
+                    <TextBlock
+                    Text="{Binding CrashRisk,StringFormat={}{0}%}"
+                    Foreground="White"/>
+
+                    <TextBlock
+                    Margin="0,20,0,5"
+                    Text="AI Prediction"
+                    FontWeight="Bold"
+                    Foreground="#00D26A"/>
+
+                    <Border
+                    Margin="0,5,0,0"
+                    Padding="10"
+                    Background="#273140"
+                    CornerRadius="6">
+
+                        <TextBlock
+                        Text="{Binding Prediction}"
+                        TextWrapping="Wrap"
+                        Foreground="White"
+                        FontWeight="SemiBold"/>
+
+                    </Border>
 
                 </StackPanel>
 
             </Border>
 
+            <!-- =================================================== -->
+            <!-- RIGHT PANEL -->
+            <!-- (Part 2 burada davam edəcək) -->
+            <!-- =================================================== -->
 
+            <Grid Grid.Column="2">
 
-    <!-- ===================================================== -->
-    <!-- MESSAGE INPUT -->
-    <!-- ===================================================== -->
+                <Grid.RowDefinitions>
 
-    <Border Grid.Row="2"
-                Margin="10,0,10,10"
-                Background="#1F2633"
-                CornerRadius="8">
+                    <RowDefinition Height="230"/>
 
-        <Grid Margin="10">
+                    <RowDefinition Height="15"/>
 
-            <Grid.ColumnDefinitions>
+                    <RowDefinition Height="*"/>
 
-                <ColumnDefinition/>
+                </Grid.RowDefinitions>
+                <!-- =================================================== -->
+                <!-- FLIGHT MONITOR -->
+                <!-- =================================================== -->
 
-                <ColumnDefinition Width="110"/>
+                <Border Grid.Row="0"
+                    Background="#1E2530"
+                    CornerRadius="8"
+                    Padding="15">
 
-            </Grid.ColumnDefinitions>
+                    <Grid>
 
-            <TextBox
-                    Grid.Column="0"
-                    Margin="0,0,10,0"
-                    FontSize="14"
-                    VerticalContentAlignment="Center"
-                    Background="#2A3441"
-                    Foreground="White"
-                    BorderThickness="0"
-                    Padding="15,10"
-                    Text="{Binding UserMessage, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="Type your message..." />
+                        <Grid.RowDefinitions>
 
-            <Button
-                    Grid.Column="1"
-                    Content="Send"
+                            <RowDefinition Height="Auto"/>
+
+                            <RowDefinition Height="10"/>
+
+                            <RowDefinition Height="*"/>
+
+                        </Grid.RowDefinitions>
+
+                        <StackPanel>
+
+                            <TextBlock
+                            Text="Flight Monitor"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="White"/>
+
+                            <TextBlock
+                            Text="Real-Time AI Monitoring"
+                            Margin="0,3,0,0"
+                            Foreground="#8A8A8A"
+                            FontSize="11"/>
+
+                        </StackPanel>
+
+                        <ListView Grid.Row="2"
+                              ItemsSource="{Binding LiveMessages}"
+                              Background="#1E2530"
+                              BorderThickness="0"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+                            <ListView.ItemTemplate>
+
+                                <DataTemplate>
+
+                                    <Border Margin="0,0,0,10"
+                                        Background="#273140"
+                                        CornerRadius="6"
+                                        Padding="12">
+
+                                        <Grid>
+
+                                            <Grid.ColumnDefinitions>
+
+                                                <ColumnDefinition Width="*"/>
+
+                                                <ColumnDefinition Width="90"/>
+
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel>
+
+                                                <TextBlock
+                                                Text="{Binding Title}"
+                                                FontWeight="Bold"
+                                                Foreground="White"
+                                                FontSize="14"/>
+
+                                                <TextBlock
+                                                Margin="0,4,0,0"
+                                                Text="{Binding Message}"
+                                                Foreground="#DDDDDD"
+                                                TextWrapping="Wrap"/>
+
+                                                <TextBlock
+                                                Margin="0,8,0,0"
+                                                Text="{Binding Time}"
+                                                FontSize="10"
+                                                Foreground="#909090"/>
+
+                                            </StackPanel>
+
+                                            <Border Grid.Column="1"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Background="#00D26A"
+                                                CornerRadius="12"
+                                                Padding="8,3">
+
+                                                <TextBlock
+                                                Text="{Binding Confidence,StringFormat={}{0}%}"
+                                                Foreground="White"
+                                                FontWeight="Bold"
+                                                FontSize="11"/>
+
+                                            </Border>
+
+                                        </Grid>
+
+                                    </Border>
+
+                                </DataTemplate>
+
+                            </ListView.ItemTemplate>
+
+                        </ListView>
+
+                    </Grid>
+
+                </Border>
+
+                <!-- =================================================== -->
+                <!-- AI CONVERSATION -->
+                <!-- =================================================== -->
+
+                <Border Grid.Row="2"
+                    Background="#1E2530"
+                    CornerRadius="8"
+                    Padding="15">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+
+                            <RowDefinition Height="Auto"/>
+
+                            <RowDefinition Height="10"/>
+
+                            <RowDefinition Height="*"/>
+
+                        </Grid.RowDefinitions>
+
+                        <StackPanel>
+
+                            <TextBlock
+                            Text="AI Flight Assistant"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="White"/>
+
+                            <TextBlock
+                            Margin="0,3,0,0"
+                            Text="AI Reasoning &amp; Recommendations"
+                            Foreground="#8A8A8A"
+                            FontSize="11"/>
+
+                        </StackPanel>
+
+                        <ListBox Grid.Row="2"
+                             ItemsSource="{Binding Conversation}"
+                             Background="#1E2530"
+                             BorderThickness="0"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+                            <ListBox.ItemTemplate>
+
+                                <DataTemplate>
+
+                                    <Border Margin="0,0,0,12"
+                                        Background="#273140"
+                                        CornerRadius="8"
+                                        Padding="15">
+
+                                        <StackPanel>
+
+                                            <DockPanel>
+
+                                                <Border Width="34"
+                                                    Height="34"
+                                                    Background="#00D26A"
+                                                    CornerRadius="17"
+                                                    Margin="0,0,10,0">
+
+                                                    <TextBlock
+                                                    Text="AI"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="Bold"
+                                                    Foreground="White"/>
+
+                                                </Border>
+
+                                                <StackPanel>
+
+                                                    <TextBlock
+                                                    Text="{Binding Sender}"
+                                                    FontWeight="Bold"
+                                                    FontSize="13"
+                                                    Foreground="White"/>
+
+                                                    <TextBlock
+                                                    Text="{Binding Time}"
+                                                    FontSize="10"
+                                                    Foreground="#909090"/>
+
+                                                </StackPanel>
+
+                                            </DockPanel>
+
+                                            <Separator Margin="0,10"/>
+
+                                            <TextBlock
+                                            Text="{Binding Text}"
+                                            Foreground="White"
+                                            FontSize="13"
+                                            TextWrapping="Wrap"/>
+
+                                        </StackPanel>
+
+                                    </Border>
+
+                                </DataTemplate>
+
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+
+                </Border>
+
+            </Grid>
+        </Grid>
+
+        <!-- ======================================================= -->
+        <!-- BOTTOM TOOLBAR -->
+        <!-- ======================================================= -->
+
+        <Border Grid.Row="2"
+            Background="#1E2530"
+            CornerRadius="8"
+            Padding="10">
+
+            <UniformGrid Columns="4">
+
+                <!-- Analyze -->
+
+                <Button Height="42"
+                    Margin="5"
                     FontWeight="Bold"
-                    FontSize="14"
+                    FontSize="13"
                     Background="#00D26A"
                     Foreground="White"
                     BorderThickness="0"
-                    Command="{Binding SendMessageCommand}"/>
+                    Command="{Binding AnalyzeCommand}">
 
-        </Grid>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
 
-    </Border>
-    <!-- ===================================================== -->
-    <!-- QUICK ACTIONS -->
-    <!-- ===================================================== -->
+                        <TextBlock Text="🔍"
+                               Margin="0,0,8,0"
+                               FontSize="15"/>
 
-    <Border Grid.Row="3"
-                Margin="10,0,10,10"
-                Background="#1F2633"
-                CornerRadius="8">
+                        <TextBlock Text="Analyze Aircraft"/>
 
-        <Grid Margin="10">
+                    </StackPanel>
 
-            <Grid.ColumnDefinitions>
+                </Button>
 
-                <ColumnDefinition/>
+                <!-- Parameter Assistant -->
 
-                <ColumnDefinition/>
+                <Button Height="42"
+                    Margin="5"
+                    FontWeight="Bold"
+                    FontSize="13"
+                    Background="#2196F3"
+                    Foreground="White"
+                    BorderThickness="0">
 
-                <ColumnDefinition/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
 
-                <ColumnDefinition/>
+                        <TextBlock Text="⚙"
+                               Margin="0,0,8,0"
+                               FontSize="15"/>
 
-            </Grid.ColumnDefinitions>
+                        <TextBlock Text="Parameter Assistant"/>
 
-            <!-- Analyze Aircraft -->
+                    </StackPanel>
 
-            <Button Grid.Column="0"
-                        Margin="5"
-                        Height="42"
-                        Background="#00C853"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Command="{Binding AnalyzeAircraftCommand}">
+                </Button>
 
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+                <!-- Log Analysis -->
 
-                    <TextBlock Text="✈"
-                                   FontSize="16"
-                                   Margin="0,0,8,0"/>
+                <Button Height="42"
+                    Margin="5"
+                    FontWeight="Bold"
+                    FontSize="13"
+                    Background="#FF9800"
+                    Foreground="White"
+                    BorderThickness="0">
 
-                    <TextBlock Text="Analyze Aircraft"/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
 
-                </StackPanel>
+                        <TextBlock Text="📄"
+                               Margin="0,0,8,0"
+                               FontSize="15"/>
 
-            </Button>
+                        <TextBlock Text="Log Analysis"/>
 
-            <!-- Parameter Assistant -->
+                    </StackPanel>
 
-            <Button Grid.Column="1"
-                        Margin="5"
-                        Height="42"
-                        Background="#1976D2"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Command="{Binding ParameterAnalysisCommand}">
+                </Button>
 
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+                <!-- Swarm -->
 
-                    <TextBlock Text="⚙"
-                                   FontSize="16"
-                                   Margin="0,0,8,0"/>
+                <Button Height="42"
+                    Margin="5"
+                    FontWeight="Bold"
+                    FontSize="13"
+                    Background="#9C27B0"
+                    Foreground="White"
+                    BorderThickness="0">
 
-                    <TextBlock Text="Parameters"/>
+                    <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
 
-                </StackPanel>
+                        <TextBlock Text="🛸"
+                               Margin="0,0,8,0"
+                               FontSize="15"/>
 
-            </Button>
+                        <TextBlock Text="Swarm AI"/>
 
-            <!-- Log Analysis -->
+                    </StackPanel>
 
-            <Button Grid.Column="2"
-                        Margin="5"
-                        Height="42"
-                        Background="#FB8C00"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Command="{Binding LogAnalysisCommand}">
+                </Button>
 
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+            </UniformGrid>
 
-                    <TextBlock Text="📄"
-                                   FontSize="16"
-                                   Margin="0,0,8,0"/>
-
-                    <TextBlock Text="Log Analysis"/>
-
-                </StackPanel>
-
-            </Button>
-
-            <!-- Swarm -->
-
-            <Button Grid.Column="3"
-                        Margin="5"
-                        Height="42"
-                        Background="#8E24AA"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Command="{Binding SwarmAICommand}">
-
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-
-                    <TextBlock Text="🛸"
-                                   FontSize="16"
-                                   Margin="0,0,8,0"/>
-
-                    <TextBlock Text="Swarm AI"/>
-
-                </StackPanel>
-
-            </Button>
-
-        </Grid>
-
-    </Border>
+        </Border>
 
     </Grid>
+
 </UserControl>
