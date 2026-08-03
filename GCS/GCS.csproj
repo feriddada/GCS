@@ -9,10 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AI CHAT\Database\Aircraft.JSON" />
+    <None Remove="AI CHAT\Database\Experience.JSON" />
+    <None Remove="Models\NAA_Logo.jpg" />
     <None Remove="Models\WCR.master_1.stl" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="AI CHAT\Database\Aircraft.JSON">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AI CHAT\Database\Experience.JSON">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Models\WCR.master_1.stl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -38,6 +47,12 @@
   <ItemGroup>
     <Folder Include="Infrastructure\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Models\NAA_Logo.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

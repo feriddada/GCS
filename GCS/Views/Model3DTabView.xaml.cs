@@ -125,9 +125,7 @@ public partial class Model3DTabView : UserControl
     {
         if (e.NewValue is true && IsLoaded)
         {
-            // Force an immediate update when becoming visible,
-            // so the model shows the latest attitude even if
-            // values didn't change while the tab was hidden.
+            
             _needsUpdate = true;
             UpdateModelRotation();
             _updateTimer.Start();
@@ -254,8 +252,8 @@ public partial class Model3DTabView : UserControl
         }
 
         _rotationYaw = new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0);
-        _rotationPitch = new AxisAngleRotation3D(new Vector3D(-1, 0, 0), 0);
-        _rotationRoll = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+        _rotationPitch = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+        _rotationRoll = new AxisAngleRotation3D(new Vector3D(-1, 0, 0), 0);
 
         _modelTransformGroup.Children.Add(new RotateTransform3D(_rotationYaw));
         _modelTransformGroup.Children.Add(new RotateTransform3D(_rotationPitch));

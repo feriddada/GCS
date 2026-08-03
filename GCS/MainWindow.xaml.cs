@@ -70,4 +70,9 @@ public partial class MainWindow : Window
             DragMove();
         }
     }
+
+    private void FlightPanelView_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

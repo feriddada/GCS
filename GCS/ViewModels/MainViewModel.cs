@@ -1,4 +1,9 @@
-﻿using GCS.Core;
+﻿using GCS.AI_CHAT.Engine;
+using GCS.AI_CHAT.Live;
+using GCS.AI_CHAT.Mapper;
+using GCS.AI_CHAT.Models;
+using GCS.AI_CHAT.Response;
+using GCS.Core;
 using GCS.Core.Alerts;
 using GCS.Core.Domain;
 using GCS.Core.Health;
@@ -14,7 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-
 namespace GCS.ViewModels;
 
 public class MainViewModel : ViewModelBase, IDisposable
@@ -30,6 +34,17 @@ public class MainViewModel : ViewModelBase, IDisposable
     private IAlertEngine? _alertEngine;
     private IPreflightCheckEngine? _preflightEngine;
     private IMissionService? _missionService;
+    private readonly VehicleStateMapper mapper =
+    new();
+
+    private readonly AIAnalysisEngine aiEngine =
+        new();
+
+    private readonly AIResponseBuilder responseBuilder =
+        new();
+   
+    private readonly LiveAIEngine liveAIEngine =
+      new();
 
     private CancellationTokenSource? _cts;
     private bool _disposed;
@@ -54,7 +69,9 @@ public class MainViewModel : ViewModelBase, IDisposable
     public MissionViewModel Mission { get; } = new();
     public WeatherViewModel Weather { get; }
     public FailsafeViewModel Failsafe { get; }
-
+    public AIAssistantViewModel AIAssistant { get; }
+    public LiveAIViewModel LiveAI { get; }
+    = new();
     // ═══════════════════════════════════════════════════════════════
     // Constructor
     // ═══════════════════════════════════════════════════════════════
@@ -69,6 +86,7 @@ public class MainViewModel : ViewModelBase, IDisposable
         Preflight = new PreflightViewModel();
         Messages = new MessagesViewModel();
         RcChannels = new RcChannelsViewModel();
+        AIAssistant = new AIAssistantViewModel();
 
         Weather = new WeatherViewModel(config.WeatherApiKey, config.WeatherCity, config.WeatherCountry);
 
@@ -87,6 +105,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
         Connection.ConnectRequested += OnConnectRequested;
         Connection.DisconnectRequested += OnDisconnectRequested;
+
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -189,6 +208,15 @@ public class MainViewModel : ViewModelBase, IDisposable
             Connection.SetError(ex.Message);
             await CleanupAsync();
         }
+
+        //---------------------------------
+        // AI Analysis
+        //---------------------------------
+
+      
+
+        // TODO:
+        // AIAssistant.Update(report);
     }
 
     private async void OnDisconnectRequested()
@@ -255,6 +283,44 @@ public class MainViewModel : ViewModelBase, IDisposable
             gpsFixType: state.Gps?.FixType ?? 0,
             gpsSatellites: state.Gps?.SatellitesVisible ?? 0,
             gpsFixString: state.Gps?.FixTypeString ?? "NO GPS");
+
+        //---------------------------------
+        // AI Analysis
+        //---------------------------------
+
+
+
+        FlightData flightData =
+            mapper.Map(state);
+
+        AIAnalysisResult analysis =
+            aiEngine.Analyze(flightData);
+
+        string report =
+            responseBuilder.Build(analysis);
+
+        var liveMessages =
+            liveAIEngine.Update(flightData);
+
+        // Update AI HUD
+        AIAssistant.UpdateHUD(
+            flightData,
+            analysis,
+            liveMessages);
+
+        // Save last report
+       
+
+
+        // Update HUD
+        LiveAI.Update(
+            flightData,
+            analysis,
+            liveMessages);
+
+
+        // Sonra bunu edəcəyik
+        // AIAssistant.Update(report);
     }
 
     private void OnHealthStateChanged(HealthState health)

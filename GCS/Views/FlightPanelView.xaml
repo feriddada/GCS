@@ -195,6 +195,18 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- TAB : AI ASSISTANT -->
+            <TabItem Header="AI" Style="{StaticResource ModernTabItem}">
+               
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <views:AIAssistantTabView DataContext="{Binding DataContext.AIAssistant, RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+                 
+
+                </ScrollViewer>
+
+            </TabItem>
             <!-- TAB 6: FAILSAFE -->
             <TabItem Header="FAILSAFE" Style="{StaticResource ModernTabItem}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

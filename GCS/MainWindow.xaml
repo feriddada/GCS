@@ -363,7 +363,7 @@
                         BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="0,0,1,0">
                     <!-- FlightPanelView is bound to Telemetry and contains all tabs -->
-                    <views:FlightPanelView DataContext="{Binding Telemetry}"/>
+                    <views:FlightPanelView DataContext="{Binding Telemetry}" Loaded="FlightPanelView_Loaded"/>
                 </Border>
 
                 <!-- RIGHT PANEL: Map -->

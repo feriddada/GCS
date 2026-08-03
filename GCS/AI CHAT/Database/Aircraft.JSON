@@ -1,0 +1,20 @@
+[
+ {
+   "Name":"Custom 15kg Fixed Wing",
+   "Type":"Fixed Wing",
+
+   "MTOW":15,
+
+   "WingSpan":3.2,
+
+   "WingArea":0.85,
+
+   "CruiseSpeed":23,
+
+   "StallSpeed":12,
+
+   "FlightController":"Pixhawk",
+
+   "Firmwaree":"ArduPlane"
+ }
+]

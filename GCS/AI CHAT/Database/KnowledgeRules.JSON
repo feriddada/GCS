@@ -1,0 +1,45 @@
+[
+  {
+    "Problem": "Propeller Imbalance",
+
+    "RequiredEvidence": [
+      "Motor current imbalance",
+      "High vibration"
+    ],
+
+    "Recommendation":
+      "Inspect propeller and motor.",
+
+    "Parameters": [
+      "INS_GYRO_FILTER",
+      "ATC_RAT_RLL_P"
+    ]
+  },
+
+  {
+    "Problem": "ESC Overheating",
+
+    "RequiredEvidence": [
+      "ESC overheating detected"
+    ],
+
+    "Recommendation":
+      "Check ESC cooling.",
+
+    "Parameters": []
+  },
+
+  {
+    "Problem": "Battery Health Problem",
+
+    "RequiredEvidence": [
+      "Battery capacity is low",
+      "Voltage sag detected"
+    ],
+
+    "Recommendation":
+      "Recharge or replace battery.",
+
+    "Parameters": []
+  }
+]

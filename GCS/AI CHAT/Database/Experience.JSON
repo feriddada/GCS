@@ -1,0 +1,17 @@
+[
+  {
+    "Aircraft": "Custom 15kg Fixed Wing",
+    "Problem": "vibration",
+    "Cause": "Propeller imbalance",
+    "Solution": "Balance or replace propeller",
+    "Solved": true
+  },
+
+  {
+    "Aircraft": "Custom 15kg Fixed Wing",
+    "Problem": "vibration",
+    "Cause": "Motor problem",
+    "Solution": "vibration fixed by changing motor",
+    "Solved": true
+  }
+]
